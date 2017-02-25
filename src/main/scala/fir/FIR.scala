@@ -33,7 +33,7 @@ class FIR[T<:Data:Ring]()(implicit val p: Parameters) extends Module with HasFIR
   } .otherwise {
     in := Vec.fill(config.lanesIn)(Ring[T].zero)
   }
-  val products: Seq[Seq[T]] = io.taps.reverse.map { tap => in.map { i => 
+  val products = io.taps.reverse.map { tap => in.map { i => 
     i * tap
   }}
 
