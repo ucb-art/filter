@@ -15,27 +15,30 @@ class FIRBlock[T <: Data : Ring]()(implicit p: Parameters) extends DspBlock()(p)
   def statuses = Seq()
 
   lazy val module = new FIRBlockModule[T](this)
+
+  addStatus("Data_Set_End_Status")
+  addControl("Data_Set_End_Clear", 0.U)
   
   val config = p(FIRKey(p(DspBlockId)))
   (0 until config.numberOfTaps).map( i =>
-    addControl(s"firCoeff$i", 0.U)
+    addControl(s"Coefficient_$i", 0.U)
   )
-  addStatus("firStatus")
-
 }
 
 class FIRBlockModule[T <: Data : Ring](outer: DspBlock)(implicit p: Parameters)
-  extends GenDspBlockModule[T, T](outer)(p) with HasFIRParameters[T] {
+  extends GenDspBlockModule[T, T](outer)(p) with HasFIRGenParameters[T, T] {
   val module = Module(new FIR)
   val config = p(FIRKey(p(DspBlockId)))
   
   module.io.in <> unpackInput(lanesIn, genIn())
   unpackOutput(lanesOut, genOut()) <> module.io.out
 
-  val taps = Wire(Vec(config.numberOfTaps, genTap.getOrElse(genIn())))
-  val w = taps.zipWithIndex.map{case (x, i) => x.fromBits(control(s"firCoeff$i"))}
+  status("Data_Set_End_Status") := module.io.data_set_end_status
+  module.io.data_set_end_clear := control("Data_Set_End_Clear")
+
+  val taps = Wire(Vec(config.numberOfTaps, genCoeff()))
+  val w = taps.zipWithIndex.map{case (x, i) => x.fromBits(control(s"Coefficient_$i"))}
   module.io.taps := w
-  status("firStatus") := module.io.out.sync
 
   IPXactComponents._ipxactComponents += DspIPXact.makeDspBlockComponent
 }
