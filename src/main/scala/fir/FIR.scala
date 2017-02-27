@@ -6,7 +6,6 @@ import chisel3.util._
 import dspjunctions.ValidWithSync
 import dsptools.numbers._
 import dsptools.numbers.implicits._
-import dsptools.counters._
 import dspblocks._
 import scala.math._
 
