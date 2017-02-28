@@ -2,6 +2,8 @@
 
 name := "filter"
 
+organization := "edu.berkeley.cs"
+
 version := "1.0"
 
 scalaVersion := "2.11.7"
