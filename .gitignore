@@ -311,7 +311,7 @@ xcuserdata
 # sbt specific
 .cache
 .history
-lib/
+lib
 dist/*
 target/
 lib_managed/
