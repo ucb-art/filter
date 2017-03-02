@@ -24,8 +24,6 @@ class FIRBlock[T <: Data : Ring]()(implicit p: Parameters) extends DspBlock()(p)
     addControl(s"Coefficient_$i", 0.U)
   )
 
-  addControl("Wrapback", 0.U)
-
 }
 
 class FIRBlockModule[T <: Data : Ring](outer: DspBlock)(implicit p: Parameters)
@@ -43,5 +41,5 @@ class FIRBlockModule[T <: Data : Ring](outer: DspBlock)(implicit p: Parameters)
   val w = taps.zipWithIndex.map{case (x, i) => x.fromBits(control(s"Coefficient_$i"))}
   module.io.taps := w
 
-  IPXactComponents._ipxactComponents += DspIPXact.makeDspBlockComponent(baseAddr)
+  IPXactComponents._ipxactComponents += DspIPXact.makeDspBlockComponent(baseAddr, uuid)
 }
