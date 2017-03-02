@@ -23,6 +23,9 @@ class FIRBlock[T <: Data : Ring]()(implicit p: Parameters) extends DspBlock()(p)
   (0 until config.numberOfTaps).map( i =>
     addControl(s"Coefficient_$i", 0.U)
   )
+
+  addControl("Wrapback", 0.U)
+
 }
 
 class FIRBlockModule[T <: Data : Ring](outer: DspBlock)(implicit p: Parameters)
