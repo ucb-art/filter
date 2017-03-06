@@ -18,7 +18,7 @@ PROJECT ?= craft
 MODEL ?= DspTop
 CFG_PROJECT ?= fir
 CONFIG ?= DefaultStandaloneFixedPointFIRConfig
-VLSITOP ?= TunerBlock
+VLSITOP ?= FIRBlock
 
 long_name = $(PROJECT).$(MODEL).$(CONFIG)
 
