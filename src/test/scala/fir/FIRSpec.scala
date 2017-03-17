@@ -30,7 +30,85 @@ import uncore.coherence._
 
 object LocalTest extends Tag("edu.berkeley.tags.LocalTest")
 
-class FIRTester[T <: Data](dut: FIRBlockModule[T], input: Seq[Complex], coeffs: Seq[Complex], ref_output: Seq[Complex], verbose: Boolean = false)(implicit p: Parameters) extends DspBlockTester(dut) {
+class FIRRealRealTester[T <: Data](dut: FIRBlockModule[T], input: Seq[Double], coeffs: Seq[Double], ref_output: Seq[Double], verbose: Boolean = false)(implicit p: Parameters) extends DspBlockTester(dut) {
+  val config = p(FIRKey(p(DspBlockId)))
+  val gk = p(GenKey(p(DspBlockId)))
+  val fgk = p(FIRGenKey(p(DspBlockId)))
+  
+  // define input datasets here, pad zeros
+  if (input.size % gk.lanesIn != 0) {
+    println("Warning: padding zeroes to align input data to input lanes")
+  }
+  val ins = (input ++ Seq.fill(input.size % gk.lanesIn)(0.0)).grouped(gk.lanesIn).map(Seq(_)).toSeq
+  def streamIn = ins.map(packInputStream(_, gk.genIn))
+
+  require(coeffs.size == config.numberOfTaps, "You passed more or fewer coefficients to the tester than the FIR has taps")
+
+  pauseStream
+  coeffs.zipWithIndex.foreach { case(x, i) => axiWriteAs(addrmap(s"Coefficient_$i"), x, fgk.genCoeff) }
+  step(10)
+  playStream
+  step(ins.size)
+  val output = unpackOutputStream(gk.genOut, gk.lanesOut)
+
+  if (verbose) {
+    println("Input")
+    println(input.toArray.deep.mkString("\n"))
+    println("Coefficients")
+    println(coeffs.toArray.deep.mkString("\n"))
+    println("Chisel Output")
+    println(output.toArray.deep.mkString("\n"))
+    println("Reference Output")
+    println(ref_output.toArray.deep.mkString("\n"))
+  }
+
+  if (ref_output.size > 0) {
+    require(ref_output.size == gk.lanesOut, "Error: reference output wrong size")
+    output.zip(ref_output).foreach { case (a, b) => require(a == b, "Error: Wrong output!") }
+  }
+
+}
+
+class FIRComplexRealTester[T <: Data](dut: FIRBlockModule[T], input: Seq[Complex], coeffs: Seq[Double], ref_output: Seq[Complex], verbose: Boolean = false)(implicit p: Parameters) extends DspBlockTester(dut) {
+  val config = p(FIRKey(p(DspBlockId)))
+  val gk = p(GenKey(p(DspBlockId)))
+  val fgk = p(FIRGenKey(p(DspBlockId)))
+  
+  // define input datasets here, pad zeros
+  if (input.size % gk.lanesIn != 0) {
+    println("Warning: padding zeroes to align input data to input lanes")
+  }
+  val ins = (input ++ Seq.fill(input.size % gk.lanesIn)(Complex(0,0))).grouped(gk.lanesIn).map(Seq(_)).toSeq
+  def streamIn = ins.map(packInputStream(_, gk.genIn))
+
+  require(coeffs.size == config.numberOfTaps, "You passed more or fewer coefficients to the tester than the FIR has taps")
+
+  pauseStream
+  coeffs.zipWithIndex.foreach { case(x, i) => axiWriteAs(addrmap(s"Coefficient_$i"), x, fgk.genCoeff) }
+  step(10)
+  playStream
+  step(ins.size)
+  val output = unpackOutputStream(gk.genOut, gk.lanesOut)
+
+  if (verbose) {
+    println("Input")
+    println(input.toArray.deep.mkString("\n"))
+    println("Coefficients")
+    println(coeffs.toArray.deep.mkString("\n"))
+    println("Chisel Output")
+    println(output.toArray.deep.mkString("\n"))
+    println("Reference Output")
+    println(ref_output.toArray.deep.mkString("\n"))
+  }
+
+  if (ref_output.size > 0) {
+    require(ref_output.size == gk.lanesOut, "Error: reference output wrong size")
+    output.zip(ref_output).foreach { case (a, b) => require(a == b, "Error: Wrong output!") }
+  }
+
+}
+
+class FIRComplexComplexTester[T <: Data](dut: FIRBlockModule[T], input: Seq[Complex], coeffs: Seq[Complex], ref_output: Seq[Complex], verbose: Boolean = false)(implicit p: Parameters) extends DspBlockTester(dut) {
   val config = p(FIRKey(p(DspBlockId)))
   val gk = p(GenKey(p(DspBlockId)))
   val fgk = p(FIRGenKey(p(DspBlockId)))
@@ -76,7 +154,20 @@ class FIRWrapperSpec extends FlatSpec with Matchers {
     interpreterOptions = InterpreterOptions(setVerbose = false, writeVCD = true)
   }
 
-  it should "work with DspBlockTester" in {
+  //it should "build with SInt input and everything else as default" in {
+  //  implicit val p: Parameters = Parameters.root(FIRConfigBuilder.standalone(
+  //    id = "fir", 
+  //    firConfig = FIRConfig(),
+  //    genIn = () => SInt(8.W))
+  //    .toInstance)
+  //  val dut = () => LazyModule(new FIRBlock[SInt]).module
+  //  val input = Seq.fill(p(GenKey(p(DspBlockId))).lanesIn)(4.0)
+  //  val coeffs = Seq.fill(p(FIRKey(p(DspBlockId))).numberOfTaps)(3.0)
+  //  val output = Seq()
+  //  chisel3.iotesters.Driver.execute(dut, manager) { c => new FIRRealRealTester(c, input, coeffs, output, false) } should be (true)
+  //}
+
+  it should "build with complex values" in {
     implicit val p: Parameters = Parameters.root(FIRConfigBuilder.standalone(
       id = "fir", 
       firConfig = FIRConfig(
@@ -91,7 +182,7 @@ class FIRWrapperSpec extends FlatSpec with Matchers {
     val dut = () => LazyModule(new FIRBlock[DspComplex[FixedPoint]]).module
     val input = Seq.fill(16)(Complex(0.125, 0.0))
     val coeffs = Seq.fill(4)(Complex(0.125, 0.0))
-    chisel3.iotesters.Driver.execute(dut, manager) { c => new FIRTester(c, input, coeffs, Seq(), true) } should be (true)
+    chisel3.iotesters.Driver.execute(dut, manager) { c => new FIRComplexComplexTester(c, input, coeffs, Seq(), false) } should be (true)
   }
 
   it should "not have a DC bias from truncating" in {
@@ -110,6 +201,44 @@ class FIRWrapperSpec extends FlatSpec with Matchers {
     val input = Seq.fill(128*4)(Complex(0.015625, 0.0))
     val coeffs = Seq.fill(128)(Complex(0.00390625, 0.0))
     val output = Seq.fill(2)(Complex(0.0078125, 0))
-    chisel3.iotesters.Driver.execute(dut, manager) { c => new FIRTester(c, input, coeffs, output, true) } should be (true)
+    chisel3.iotesters.Driver.execute(dut, manager) { c => new FIRComplexComplexTester(c, input, coeffs, output, true) } should be (true)
   }
+
+  //it should "build with complex data and real coefficients" in {
+  //  implicit val p: Parameters = Parameters.root(FIRConfigBuilder.standalone(
+  //    id = "fir", 
+  //    firConfig = FIRConfig(
+  //      numberOfTaps = 4,
+  //      processingDelay = 0,
+  //      lanesIn = 4,
+  //      lanesOut = 2), 
+  //    genIn = () => DspComplex(FixedPoint(8.W, 7.BP), FixedPoint(8.W, 7.BP)),
+  //    genOut = Some(() => DspComplex(FixedPoint(8.W, 10.BP), FixedPoint(8.W, 10.BP))),
+  //    genCoeff = Some(() => FixedPoint(11.W, 10.BP)))
+  //    .toInstance)
+  //  val dut = () => LazyModule(new FIRBlock[DspComplex[FixedPoint]]).module
+  //  val input = Seq.fill(20)(Complex(0.125, 0.0))
+  //  val coeffs = Seq.fill(4)(0.0625)
+  //  val output = Seq()
+  //  chisel3.iotesters.Driver.execute(dut, manager) { c => new FIRComplexRealTester(c, input, coeffs, output, false) } should be (true)
+  //}
+
+  //it should "build with real data and real coefficients" in {
+  //  implicit val p: Parameters = Parameters.root(FIRConfigBuilder.standalone(
+  //    id = "fir", 
+  //    firConfig = FIRConfig(
+  //      numberOfTaps = 4,
+  //      processingDelay = 0,
+  //      lanesIn = 4,
+  //      lanesOut = 2), 
+  //    genIn = () => FixedPoint(8.W, 7.BP),
+  //    genOut = Some(() => FixedPoint(8.W, 10.BP)),
+  //    genCoeff = Some(() => FixedPoint(11.W, 10.BP)))
+  //    .toInstance)
+  //  val dut = () => LazyModule(new FIRBlock[FixedPoint]).module
+  //  val input = Seq.fill(20)(0.125)
+  //  val coeffs = Seq.fill(4)(0.0625)
+  //  val output = Seq()
+  //  chisel3.iotesters.Driver.execute(dut, manager) { c => new FIRRealRealTester(c, input, coeffs, output, false) } should be (true)
+  //}
 }

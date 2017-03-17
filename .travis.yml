@@ -18,6 +18,7 @@ env:
     INSTALL_DIR=$TRAVIS_BUILD_DIR/install
     VERILATOR_ROOT=$INSTALL_DIR
     PATH=$PATH:$VERILATOR_ROOT/bin:$TRAVIS_BUILD_DIR/utils/bin
+    MAKEFLAGS=" -j 2"
 
 script:
   - git submodule update --init
