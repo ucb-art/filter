@@ -41,5 +41,5 @@ class FIRBlockModule[T <: Data : Ring](outer: DspBlock)(implicit p: Parameters)
   val w = taps.zipWithIndex.map{case (x, i) => x.fromBits(control(s"Coefficient_$i"))}
   module.io.taps := w
 
-  IPXactComponents._ipxactComponents += DspIPXact.makeDspBlockComponent(baseAddr, uuid, module.name)
+  IPXactComponents._ipxactComponents += DspIPXact.makeDspBlockComponent(baseAddr, uuid, this.name)
 }
