@@ -13,7 +13,7 @@ FIRRTL_JAR ?= $(ROCKETCHIP_DIR)/firrtl/utils/bin/firrtl.jar
 FIRRTL ?= java -Xmx2G -Xss8M -cp $(FIRRTL_JAR) firrtl.Driver
 
 CHISEL_ARGS ?= 
-build_dir ?= generated-src
+build_dir ?= $(base_dir)/generated-src
 PROJECT ?= craft
 MODEL ?= DspTop
 CFG_PROJECT ?= fir
