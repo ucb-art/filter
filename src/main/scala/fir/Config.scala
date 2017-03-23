@@ -160,7 +160,9 @@ class CustomStandaloneFIRConfig extends Config(FIRConfigBuilder.standalone(
     numberOfTaps = 16,
     processingDelay = 4,
     lanesIn = 24,
-    lanesOut = 8), 
+    lanesOut = 8,
+    multiplyPipelineDepth = 1,
+    outputPipelineDepth = 1), 
   genIn = () => DspComplex(FixedPoint(18.W, 16.BP), FixedPoint(18.W, 16.BP)),
   genOut = Some(() => DspComplex(FixedPoint(20.W, 16.BP), FixedPoint(20.W, 16.BP))),
   genCoeff = Some(() => DspComplex(FixedPoint(22.W, 18.BP), FixedPoint(22.W, 18.BP)))
@@ -179,7 +181,7 @@ trait HasFIRGenParameters[T <: Data, V <: Data] extends HasGenParameters[T, V] {
   def genCoeff(dummy: Int = 0) = firGenExternal.genCoeff[V]
 }
 
-case class FIRConfig(val numberOfTaps: Int = 8, val processingDelay: Int = 0, val lanesIn: Int = 8, val lanesOut: Int = 8) {
+case class FIRConfig(val numberOfTaps: Int = 8, val processingDelay: Int = 0, val lanesIn: Int = 8, val lanesOut: Int = 8, val multiplyPipelineDepth: Int = 1, val outputPipelineDepth: Int = 1) {
   // sanity checks
   require(lanesIn%lanesOut == 0, "Decimation amount must be an integer.")
   require(lanesOut <= lanesIn, "Cannot have more output lanes than input lanes.")

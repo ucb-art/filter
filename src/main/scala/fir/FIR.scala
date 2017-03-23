@@ -52,7 +52,7 @@ class FIR[T<:Data:Ring]()(implicit val p: Parameters) extends Module with HasFIR
   // calculate products as in * tap
   val products = DspContext.withTrimType(dsptools.NoTrim) {
     io.taps.reverse.map { tap => in.map { i => 
-      i * tap
+      ShiftRegister(i * tap, config.multiplyPipelineDepth)
   }}}
 
   // rotates a Seq by i terms, wraps around and can be negative for reverse rotation
@@ -68,5 +68,5 @@ class FIR[T<:Data:Ring]()(implicit val p: Parameters) extends Module with HasFIR
   }
 
   // all pipeline registers tacked onto end, hopefully synthesis tools handle correctly
-  io.out.bits := Vec(last.grouped(config.lanesIn/config.lanesOut).map(_.head).toSeq)
+  io.out.bits := ShiftRegister(Vec(last.grouped(config.lanesIn/config.lanesOut).map(_.head).toSeq), config.outputPipelineDepth)
 }
