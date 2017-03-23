@@ -157,15 +157,15 @@ class DefaultStandaloneComplexFIRConfig extends Config(FIRConfigBuilder.standalo
 class CustomStandaloneFIRConfig extends Config(FIRConfigBuilder.standalone(
   "fir", 
   FIRConfig(
-    numberOfTaps = 16,
-    processingDelay = 4,
-    lanesIn = 24,
-    lanesOut = 8,
+    numberOfTaps = 136,
+    processingDelay = 8,
+    lanesIn = 32,
+    lanesOut = 4,
     multiplyPipelineDepth = 1,
-    outputPipelineDepth = 1), 
-  genIn = () => DspComplex(FixedPoint(18.W, 16.BP), FixedPoint(18.W, 16.BP)),
-  genOut = Some(() => DspComplex(FixedPoint(20.W, 16.BP), FixedPoint(20.W, 16.BP))),
-  genCoeff = Some(() => DspComplex(FixedPoint(22.W, 18.BP), FixedPoint(22.W, 18.BP)))
+    outputPipelineDepth = 5), 
+  genIn = () => DspComplex(FixedPoint(8.W, 7.BP), FixedPoint(8.W, 7.BP)),
+  genOut = Some(() => DspComplex(FixedPoint(11.W, 10.BP), FixedPoint(11.W, 10.BP))),
+  genCoeff = Some(() => DspComplex(FixedPoint(8.W, 10.BP), FixedPoint(8.W, 10.BP)))
 ))
 
 case class FIRKey(id: String) extends Field[FIRConfig]
