@@ -158,7 +158,7 @@ class CustomStandaloneFIRConfig extends Config(FIRConfigBuilder.standalone(
   "fir", 
   FIRConfig(
     numberOfTaps = 136,
-    processingDelay = 8,
+    processingDelay = 2,
     lanesIn = 32,
     lanesOut = 4,
     multiplyPipelineDepth = 1,

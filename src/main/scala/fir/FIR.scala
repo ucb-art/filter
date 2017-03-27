@@ -25,8 +25,8 @@ class FIR[T<:Data:Ring]()(implicit val p: Parameters) extends Module with HasFIR
   val io = IO(new FIRIO[T])
   val config = p(FIRKey(p(DspBlockId)))
 
-  // define the latency as the slowest output
-  val latency = config.processingDelay
+  // user-defined latency, account for pipeline delays automatically
+  val latency = config.processingDelay + config.multiplyPipelineDepth + config.outputPipelineDepth
   io.out.sync := ShiftRegisterWithReset(io.in.sync, latency, 0.U)
   io.out.valid := ShiftRegisterWithReset(io.in.valid, latency, 0.U)
 
