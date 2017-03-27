@@ -187,6 +187,8 @@ case class FIRConfig(val numberOfTaps: Int = 8, val processingDelay: Int = 0, va
   require(lanesOut <= lanesIn, "Cannot have more output lanes than input lanes.")
   require(processingDelay >= 0, "Must have positive processing delay")
   require(numberOfTaps > 0, "Must have some taps")
+  require(multiplyPipelineDepth >= 0, "Must have positiving multiply pipeline depth")
+  require(outputPipelineDepth >= 0, "Must have positiving output pipeline depth")
   //require((numberOfTaps-(lanesIn/lanesOut))%(lanesIn*2) == 0, "Number of taps must satisfy 2*n*InputLanes + (InputLanes/OutputLanes) where n is an integer")
 }
 
