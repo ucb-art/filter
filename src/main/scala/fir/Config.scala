@@ -45,7 +45,7 @@ object FIRConfigBuilder {
                 ("InputFractionalBits", fractionalBits.get.toString),
                 ("InputTotalBits", fp.getWidth.toString)
               )
-            case c: DspComplex[T] =>
+            case c: DspComplex[_] =>
               parameterMap ++= List(
                 ("InputTotalBits", c.real.getWidth.toString) // assume real and imag have equal total widths
               )
@@ -76,7 +76,7 @@ object FIRConfigBuilder {
                 ("OutputFractionalBits", fractionalBits.get.toString),
                 ("OutputTotalBits", fp.getWidth.toString)
               )
-            case c: DspComplex[T] =>
+            case c: DspComplex[_] =>
               parameterMap ++= List(
                 ("OutputTotalBits", c.real.getWidth.toString) // assume real and imag have equal total widths
               )
@@ -108,7 +108,7 @@ object FIRConfigBuilder {
                 ("CoefficientFractionalBits", fractionalBits.get.toString),
                 ("CoefficientTotalBits", fp.getWidth.toString)
               )
-            case c: DspComplex[T] =>
+            case c: DspComplex[_] =>
               parameterMap ++= List(
                 ("CoefficientTotalBits", c.real.getWidth.toString) // assume real and imag have equal total widths
               )
