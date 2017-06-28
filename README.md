@@ -19,7 +19,7 @@ Clone the repository and update the depenedencies:
 git clone git@github.com:ucb-art/filter.git
 git submodule update --init
 cd dsp-framework
-./update.bash
+./update.bash no_hwacha
 cd ..
 ```
 
