@@ -23,7 +23,7 @@ cd dsp-framework
 cd ..
 ```
 
-See the [https://github.com/ucb-art/dsp-framework/blob/master/README.md](dsp-framework README) for more details on this infrastructure.
+See the [dsp-framework README](https://github.com/ucb-art/dsp-framework/blob/master/README.md) for more details on this infrastructure.
 Build the dependencies by typing `make libs`.
 
 ## Building
@@ -55,7 +55,7 @@ Then run `make verilog CONFIG=CustomStandaloneFilterConfig` to generate the Veri
 
 ## Interfaces
 
-The Filter uses the [https://github.com/ucb-art/rocket-dsp-utils/blob/master/doc/stream.md](DSP streaming interface) (a subset of AXI4-Stream) on both the data input and data output.
+The Filter uses the [DSP streaming interface](https://github.com/ucb-art/rocket-dsp-utils/blob/master/doc/stream.md) (a subset of AXI4-Stream) on both the data input and data output.
 The SCRFile contains the filter coefficients, as well as data set end flag registers.
 It is accessible through an AXI4 interface.
 
